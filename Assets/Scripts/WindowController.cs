@@ -16,10 +16,6 @@ public class WindowController : MonoBehaviour
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
     static extern int GetClassName(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    static extern bool EnumThreadWindows(uint dwThreadId, EnumWindowsProc lpEnumFunc, IntPtr lParam);
-
     [DllImport("user32.dll", SetLastError = true)]
     static extern bool BringWindowToTop(IntPtr hWnd);
 
@@ -67,7 +63,7 @@ public class WindowController : MonoBehaviour
 
     // Extra bits to make Dlls work
     #region Extra Bits
-    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+    private delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
 
     [Flags]
     private enum SendMessageTimeoutFlags : uint
@@ -137,8 +133,9 @@ public class WindowController : MonoBehaviour
     private const string UnityWindowClassName = "UnityWndClass";
     private const string UnityEditorWindowClassName = "UnityContainerWndClass";
 
-    private IntPtr _foregroundParent;
-    private IntPtr _gameWindow;
+    private static IntPtr _foregroundParent;
+    private static IntPtr _gameWindow;
+    private static IntPtr _workerw;
 
     [SerializeField]
     public bool BackgroundFullscreen;
@@ -146,6 +143,13 @@ public class WindowController : MonoBehaviour
     public bool ForegroundFullscreen;
 
     private Resolution lastWindowResolution;
+
+    private void OnEnable()
+    {
+        _foregroundParent = IntPtr.Zero;
+        _gameWindow = IntPtr.Zero;
+        _workerw = IntPtr.Zero;
+    }
 
     private void Start()
     {
@@ -185,33 +189,34 @@ public class WindowController : MonoBehaviour
                        out result);
     }
 
-    private static IntPtr getWorkerW() 
+    [AOT.MonoPInvokeCallback(typeof(EnumWindowsProc))]
+    private static bool windowEnum(IntPtr hWnd, IntPtr lParam) 
     {
-        IntPtr workerw = IntPtr.Zero; // This is what we want to draw on.
-
-        // We enumerate all Windows, until we find one, that has the SHELLDLL_DefView 
-        // as a child. 
-        // If we found that window, we take its next sibling and assign it to workerw.
-        EnumWindows(new EnumWindowsProc((tophandle, topparamhandle) =>
-        {
-            IntPtr p = FindWindowEx(tophandle,
+        IntPtr p = FindWindowEx(hWnd,
                                         IntPtr.Zero,
                                         "SHELLDLL_DefView",
                                         null);
 
-            if (p != IntPtr.Zero)
-            {
-                // Gets the WorkerW Window after the current one.
-                workerw = FindWindowEx(IntPtr.Zero,
-                                           tophandle,
-                                           "WorkerW",
-                                           null);
-            }
+        if (p != IntPtr.Zero)
+        {
+            // Gets the WorkerW Window after the current one.
+            _workerw = FindWindowEx(IntPtr.Zero,
+                                       hWnd,
+                                       "WorkerW",
+                                       null);
+        }
 
-            return true;
-        }), IntPtr.Zero);
+        return true;
+    }
 
-        return workerw;
+    private static IntPtr getWorkerW() 
+    {
+        // We enumerate all Windows, until we find one, that has the SHELLDLL_DefView 
+        // as a child. 
+        // If we found that window, we take its next sibling and assign it to workerw.
+        EnumWindows(windowEnum, IntPtr.Zero);
+
+        return _workerw;
     }
 
     private void getPointers() 
@@ -248,15 +253,32 @@ public class WindowController : MonoBehaviour
     }
     #endregion
 
+    #region Wrapers
     public void PushGameToBack() 
     {
         setFullscreen(BackgroundFullscreen);
         pushGameToBack(_gameWindow);
     }
 
-    private static void pushGameToBack(IntPtr gameWindow) 
+    public void BringGameToFront() 
     {
-        
+        bringGameToFront(_gameWindow, _foregroundParent);
+        setFullscreen(ForegroundFullscreen);
+    }
+    #endregion
+
+    #region worker functions
+    private static void bringGameToFront(IntPtr gameWindow, IntPtr foregroundParent) 
+    {
+        // Pushes Game window to the front
+        SetParent(gameWindow, foregroundParent);
+        SendMessage(grabProgman(), 0x0034, 4, IntPtr.Zero);
+        BringWindowToTop(gameWindow);
+    }
+
+    private static void pushGameToBack(IntPtr gameWindow)
+    {
+
         // Gets progman and tells it to make WorkerW
         createWorkerW(grabProgman());
         // Grab the newly created WorkerW window (Well the one after it)
@@ -265,18 +287,5 @@ public class WindowController : MonoBehaviour
         // Sets Game Window as a child of WorkerW
         SetParent(gameWindow, workerw);
     }
-
-    public void BringGameToFront() 
-    {
-        bringGameToFront(_gameWindow, _foregroundParent);
-        setFullscreen(ForegroundFullscreen);
-    }
-
-    private static void bringGameToFront(IntPtr gameWindow, IntPtr foregroundParent) 
-    {
-        // Pushes Game window to the front
-        SetParent(gameWindow, foregroundParent);
-        SendMessage(grabProgman(), 0x0034, 4, IntPtr.Zero);
-        BringWindowToTop(gameWindow);
-    }
+    #endregion
 }
