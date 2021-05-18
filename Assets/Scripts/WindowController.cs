@@ -154,16 +154,15 @@ public class WindowController : MonoBehaviour
     private void Start()
     {
         _gameWindow = GetActiveWindow();
-        Invoke("getPointers", 5f);
-        Invoke("PushGameToBack", 10f);
-        Invoke("BringGameToFront", 15f);
+        Invoke("PushGameToBack", 5f);
+        Invoke("BringGameToFront", 120f);
     }
 
     private void Update()
     {
         if (_gameWindow == IntPtr.Zero) 
         {
-            _gameWindow = GetActiveWindow();
+            getPointers();
         }
     }
 
@@ -221,7 +220,9 @@ public class WindowController : MonoBehaviour
 
     private void getPointers() 
     {
-        _foregroundParent = GetParent(_gameWindow);
+        _gameWindow = GetActiveWindow();
+        if(_gameWindow != IntPtr.Zero)
+            _foregroundParent = GetParent(_gameWindow);
     }
     #endregion
 
