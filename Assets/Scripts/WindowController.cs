@@ -135,8 +135,9 @@ namespace DesktopAquarium
         private void Start()
         {
             _gameWindow = GetActiveWindow();
-            Invoke("PushGameToBack", 5f);
-            Invoke("BringGameToFront", 120f);
+
+            Invoke("PushGameToBack", 10f);
+            Invoke("BringGameToFront", 20f);
         }
 
         private void Update()
@@ -259,6 +260,11 @@ namespace DesktopAquarium
         {
             if (Screen.fullScreen)
             {
+                if (lastWindowResolution.width < 50 || lastWindowResolution.height < 50) 
+                {
+                    lastWindowResolution.width = Screen.currentResolution.width / 3;
+                    lastWindowResolution.height = Screen.currentResolution.height / 3;
+                }
                 Screen.SetResolution(lastWindowResolution.width, lastWindowResolution.height, false);
             }
         }
