@@ -377,4 +377,4 @@ MonoBehaviour:
   edgeMat: {fileID: 2100000, guid: 0754eaeb21fa1e74ba95025c159f0199, type: 2}
   bottomMat: {fileID: 0}
   topMat: {fileID: 0}
-  edgeSize: 0.1
+  edgeSize: 1
