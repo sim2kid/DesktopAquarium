@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
 using System.Text;
-using Background;
+using Background.Windows;
 
 namespace DesktopAquarium
 {
@@ -51,7 +51,6 @@ namespace DesktopAquarium
             Invoke("PushGameToBack", 10f);
             Invoke("BringGameToFront", 20f);
         }
-
         private void Update()
         {
             if (_gameWindow == IntPtr.Zero)
