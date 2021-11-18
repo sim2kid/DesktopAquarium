@@ -4,8 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Windows.Forms;
-using System.Drawing;
 
 namespace Background.Windows
 {
@@ -19,10 +17,6 @@ namespace Background.Windows
         /// Returns the IntPtr related to the parent of the current active window
         /// </summary>
         public static IntPtr ParentWindow => GetParent(CurrentWindow);
-        /// <summary>
-        /// Returns the number of screens on the system.
-        /// </summary>
-        public static int ScreenCount => Screen.AllScreens.Length;
 
         /// <summary>
         /// This will ask windows for the IntPtr that refers to the 'Progman' window.
@@ -72,20 +66,12 @@ namespace Background.Windows
         /// Will set the <paramref name="currentWindow"/> to the background
         /// </summary>
         /// <param name="currentWindow"></param>
-        public static void SendToBackground(IntPtr currentWindow, int screen = 0) 
+        public static void SendToBackground(IntPtr currentWindow) 
         {
             SetParent(currentWindow, WorkerW);
-            Screen[] screens = Screen.AllScreens;
-            if(screen < 0)
-                screen = 0;
-            if(screen >= screens.Length)
-                screen = screens.Length-1;
-            Rectangle screenSize = screens[screen].Bounds;
-            UnityEngine.Debug.Log($"currentWindow, {screenSize.X}, {screenSize.Y}, {screenSize.Width}, {screenSize.Height}");
-            SetWindowPos(currentWindow, IntPtr.Zero, screenSize.Width/2, screenSize.Y, screenSize.Width, screenSize.Height, (uint)MonitorFlags.SWP_NOOWNERZORDER);
+
+            SetWindowPos(currentWindow, IntPtr.Zero, 0, 0, 0, 0, (uint)(MonitorFlags.SWP_NOSIZE | MonitorFlags.SWP_NOOWNERZORDER)));
         }
-
-
 
 
         /// <summary>
