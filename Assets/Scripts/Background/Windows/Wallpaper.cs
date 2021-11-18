@@ -66,11 +66,10 @@ namespace Background.Windows
         /// Will set the <paramref name="currentWindow"/> to the background
         /// </summary>
         /// <param name="currentWindow"></param>
-        public static void SendToBackground(IntPtr currentWindow) 
+        public static void SendToBackground(IntPtr currentWindow, int width = 1920, int height = 1080) 
         {
             SetParent(currentWindow, WorkerW);
-
-            SetWindowPos(currentWindow, IntPtr.Zero, 0, 0, 0, 0, (uint)(MonitorFlags.SWP_NOSIZE | MonitorFlags.SWP_NOOWNERZORDER)));
+            SetWindowPos(currentWindow, IntPtr.Zero, 0, 0, 0, 0, (uint)(MonitorFlags.SWP_NOCOPYBITS | MonitorFlags.SWP_NOSIZE));
         }
 
 
