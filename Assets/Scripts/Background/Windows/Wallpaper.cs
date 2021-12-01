@@ -90,9 +90,10 @@ namespace Background.Windows
             offsetY = Math.Abs(offsetY);
 
             Rectangle rect = Screen.AllScreens[screen].Bounds;
-            UnityEngine.Debug.LogError($"{rect.X + offsetX}, {rect.Y + offsetY}, {rect.Width}, {rect.Height}");
             SetParent(currentWindow, WorkerW);
-            SetWindowPos(currentWindow, IntPtr.Zero, rect.X + offsetX, rect.Y + offsetY, rect.Width, rect.Height, (uint)(MonitorFlags.SWP_NOCOPYBITS | MonitorFlags.SWP_NOSIZE));
+            int x = rect.X + offsetX;
+            int y = rect.Y + offsetY;
+            SetWindowPos(currentWindow, IntPtr.Zero, x, y, rect.Width, rect.Height, (uint)(MonitorFlags.SWP_NOOWNERZORDER));
         }
 
 
