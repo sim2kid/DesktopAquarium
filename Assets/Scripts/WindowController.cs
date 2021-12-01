@@ -129,7 +129,7 @@ namespace DesktopAquarium
         public void PushGameToBack()
         {
             setFullscreen(BackgroundFullscreen);
-            Wallpaper.SendToBackground(_gameWindow, 0);
+            Wallpaper.SendToBackground(_gameWindow, 1);
         }
 
         /// <summary>

@@ -2,7 +2,6 @@ using System.Runtime.InteropServices;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing;
@@ -76,9 +75,24 @@ namespace Background.Windows
         {
             if (screen < 0 || screen >= ScreenCount)
                 screen = 0;
+
+            int offsetX = 0;
+            int offsetY = 0;
+
+            foreach (Screen s in Screen.AllScreens) 
+            {
+                Rectangle r = s.Bounds;
+                offsetX = Math.Min(offsetX, r.X);
+                offsetY = Math.Min(offsetY, r.Y);
+            }
+
+            offsetX = Math.Abs(offsetX);
+            offsetY = Math.Abs(offsetY);
+
             Rectangle rect = Screen.AllScreens[screen].Bounds;
+            UnityEngine.Debug.LogError($"{rect.X + offsetX}, {rect.Y + offsetY}, {rect.Width}, {rect.Height}");
             SetParent(currentWindow, WorkerW);
-            SetWindowPos(currentWindow, IntPtr.Zero, rect.X, rect.Y, rect.Width, rect.Height, (uint)(MonitorFlags.SWP_NOCOPYBITS | MonitorFlags.SWP_NOSIZE));
+            SetWindowPos(currentWindow, IntPtr.Zero, rect.X + offsetX, rect.Y + offsetY, rect.Width, rect.Height, (uint)(MonitorFlags.SWP_NOCOPYBITS | MonitorFlags.SWP_NOSIZE));
         }
 
 
