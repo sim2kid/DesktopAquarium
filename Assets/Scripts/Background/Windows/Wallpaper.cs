@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Windows.Forms;
+using System.Drawing;
 
 namespace Background.Windows
 {
@@ -17,6 +19,10 @@ namespace Background.Windows
         /// Returns the IntPtr related to the parent of the current active window
         /// </summary>
         public static IntPtr ParentWindow => GetParent(CurrentWindow);
+        /// <summary>
+        /// The number of screens on the system
+        /// </summary>
+        public static int ScreenCount => Screen.AllScreens.Length;
 
         /// <summary>
         /// This will ask windows for the IntPtr that refers to the 'Progman' window.
@@ -66,10 +72,13 @@ namespace Background.Windows
         /// Will set the <paramref name="currentWindow"/> to the background
         /// </summary>
         /// <param name="currentWindow"></param>
-        public static void SendToBackground(IntPtr currentWindow, int width = 1920, int height = 1080) 
+        public static void SendToBackground(IntPtr currentWindow, int screen = 0) 
         {
+            if (screen < 0 || screen >= ScreenCount)
+                screen = 0;
+            Rectangle rect = Screen.AllScreens[screen].Bounds;
             SetParent(currentWindow, WorkerW);
-            SetWindowPos(currentWindow, IntPtr.Zero, 0, 0, 0, 0, (uint)(MonitorFlags.SWP_NOCOPYBITS | MonitorFlags.SWP_NOSIZE));
+            SetWindowPos(currentWindow, IntPtr.Zero, rect.X, rect.Y, rect.Width, rect.Height, (uint)(MonitorFlags.SWP_NOCOPYBITS | MonitorFlags.SWP_NOSIZE));
         }
 
 
