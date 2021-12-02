@@ -67,6 +67,10 @@ namespace Background.Windows
             WorkerW = IntPtr.Zero;
             BringWindowToTop(currentWindow);
         }
+        static IntPtr z;
+        static int x, y, w, h;
+        static uint f;
+
         /// <summary>
         /// Will set the <paramref name="currentWindow"/> to the background
         /// </summary>
@@ -91,9 +95,14 @@ namespace Background.Windows
 
             Rectangle rect = Screen.AllScreens[screen].Bounds;
             SetParent(currentWindow, WorkerW);
-            int x = rect.X + offsetX;
-            int y = rect.Y + offsetY;
-            SetWindowPos(currentWindow, IntPtr.Zero, x, y, rect.Width, rect.Height, (uint)(MonitorFlags.SWP_NOOWNERZORDER));
+            z = IntPtr.Zero;
+
+            x = rect.X + offsetX;
+            y = rect.Y + offsetY;
+            w = rect.Width;
+            h = rect.Height;
+            f = (uint)(MonitorFlags.SWP_NOOWNERZORDER);
+            SetWindowPos(currentWindow, z, x, y, w, h, f);
         }
 
 
