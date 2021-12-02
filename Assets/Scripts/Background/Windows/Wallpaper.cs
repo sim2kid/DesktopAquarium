@@ -67,7 +67,7 @@ namespace Background.Windows
             WorkerW = IntPtr.Zero;
             BringWindowToTop(currentWindow);
         }
-        static IntPtr z;
+        static IntPtr z, cw;
         static int x, y, w, h;
         static uint f;
 
@@ -75,7 +75,13 @@ namespace Background.Windows
         /// Will set the <paramref name="currentWindow"/> to the background
         /// </summary>
         /// <param name="currentWindow"></param>
-        public static void SendToBackground(IntPtr currentWindow, int screen = 0) 
+        public static void SendToBackground(IntPtr currentWindow, int screen) 
+        {
+            SetParent(currentWindow, WorkerW);
+            RepositionWindow(currentWindow, screen);
+        }
+
+        public static void RepositionWindow(IntPtr currentWindow, int screen) 
         {
             if (screen < 0 || screen >= ScreenCount)
                 screen = 0;
@@ -83,7 +89,7 @@ namespace Background.Windows
             int offsetX = 0;
             int offsetY = 0;
 
-            foreach (Screen s in Screen.AllScreens) 
+            foreach (Screen s in Screen.AllScreens)
             {
                 Rectangle r = s.Bounds;
                 offsetX = Math.Min(offsetX, r.X);
@@ -94,15 +100,15 @@ namespace Background.Windows
             offsetY = Math.Abs(offsetY);
 
             Rectangle rect = Screen.AllScreens[screen].Bounds;
-            SetParent(currentWindow, WorkerW);
             z = IntPtr.Zero;
-
+            cw = currentWindow;
             x = rect.X + offsetX;
             y = rect.Y + offsetY;
             w = rect.Width;
             h = rect.Height;
-            f = (uint)(MonitorFlags.SWP_NOOWNERZORDER);
-            SetWindowPos(currentWindow, z, x, y, w, h, f);
+            f = (uint)(0);
+            UnityEngine.Debug.LogError($"{x}, {y}, {w}, {h}");
+            MoveWindow(cw, x, y, w, h, true);
         }
 
 
@@ -226,6 +232,10 @@ namespace Background.Windows
         [DllImport("user32.dll")]
         private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
+        [DllImport("user32.dll")]
+        private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+
+
         // Extra bits to make Dlls work
         #region Extra Bits
         private delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
@@ -259,7 +269,6 @@ namespace Background.Windows
             SWP_NOZORDER = 0x0004,
             SWP_SHOWWINDOW = 0x0040
         }
-
         #endregion
         #endregion
     }

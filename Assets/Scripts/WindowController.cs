@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Diagnostics;
 using System.Text;
 using Background.Windows;
 
@@ -36,6 +35,8 @@ namespace DesktopAquarium
         [SerializeField]
         public bool ForegroundFullscreen;
 
+        public bool IsBackground { get; private set; }
+
         private Resolution lastWindowResolution;
 
         private void OnEnable()
@@ -50,6 +51,7 @@ namespace DesktopAquarium
 
             Invoke("PushGameToBack", 10f);
             Invoke("BringGameToFront", 20f);
+            Invoke("repositionScreen", 1f);
         }
         private void Update()
         {
@@ -57,6 +59,17 @@ namespace DesktopAquarium
             {
                 getPointers();
             }
+        }
+
+        private void repositionScreen() 
+        {
+            if (IsBackground)
+            {
+                Wallpaper.RepositionWindow(_gameWindow, 2);
+                Debug.LogError($"Reposition! {Time.time}");
+            }
+            Invoke("repositionScreen", 1f);
+            
         }
 
         #region Windows Helpers
@@ -112,6 +125,7 @@ namespace DesktopAquarium
         /// <param name="value">True for Fullscreen, False for Windowed</param>
         private void setFullscreen(bool value)
         {
+            return;
             if (value)
                 toFullscreen();
             else
@@ -128,6 +142,7 @@ namespace DesktopAquarium
         /// </summary>
         public void PushGameToBack()
         {
+            IsBackground = true;
             setFullscreen(BackgroundFullscreen);
             Wallpaper.SendToBackground(_gameWindow, 0);
         }
@@ -139,6 +154,7 @@ namespace DesktopAquarium
         /// </summary>
         public void BringGameToFront()
         {
+            IsBackground = false; ;
             Wallpaper.BringToFront(_gameWindow, _foregroundParent);
             setFullscreen(ForegroundFullscreen);
         }
