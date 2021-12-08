@@ -51,7 +51,6 @@ namespace DesktopAquarium
 
             Invoke("PushGameToBack", 10f);
             Invoke("BringGameToFront", 20f);
-            Invoke("repositionScreen", 1f);
         }
         private void Update()
         {
@@ -59,17 +58,6 @@ namespace DesktopAquarium
             {
                 getPointers();
             }
-        }
-
-        private void repositionScreen() 
-        {
-            if (IsBackground)
-            {
-                Wallpaper.RepositionWindow(_gameWindow, 2);
-                Debug.LogError($"Reposition! {Time.time}");
-            }
-            Invoke("repositionScreen", 1f);
-            
         }
 
         #region Windows Helpers
@@ -126,10 +114,10 @@ namespace DesktopAquarium
         private void setFullscreen(bool value)
         {
             return;
-            if (value)
-                toFullscreen();
-            else
-                toWindowed();
+            //if (value)
+            //    toFullscreen();
+            //else
+            //    toWindowed();
         }
         #endregion
 
@@ -144,7 +132,7 @@ namespace DesktopAquarium
         {
             IsBackground = true;
             setFullscreen(BackgroundFullscreen);
-            Wallpaper.SendToBackground(_gameWindow, 0);
+            Wallpaper.SendToBackground(_gameWindow, 1);
         }
 
         /// <summary>

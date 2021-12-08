@@ -66,10 +66,8 @@ namespace Background.Windows
             SendMessage(Progman, 0x0034, 4, IntPtr.Zero);
             WorkerW = IntPtr.Zero;
             BringWindowToTop(currentWindow);
+            ToggleTitle(currentWindow, true);
         }
-        static IntPtr z, cw;
-        static int x, y, w, h;
-        static uint f;
 
         /// <summary>
         /// Will set the <paramref name="currentWindow"/> to the background
@@ -79,9 +77,15 @@ namespace Background.Windows
         {
             SetParent(currentWindow, WorkerW);
             RepositionWindow(currentWindow, screen);
+            ToggleTitle(currentWindow, false);
         }
 
-        public static void RepositionWindow(IntPtr currentWindow, int screen) 
+        /// <summary>
+        /// Sets the position of <paramref name="currentWindow"/> to be fullscreen to the monitor with an index of <paramref name="screen"/>
+        /// </summary>
+        /// <param name="currentWindow"></param>
+        /// <param name="screen"></param>
+        private static void RepositionWindow(IntPtr currentWindow, int screen) 
         {
             if (screen < 0 || screen >= ScreenCount)
                 screen = 0;
@@ -89,6 +93,9 @@ namespace Background.Windows
             int offsetX = 0;
             int offsetY = 0;
 
+            // Find the offsets based on the min of the screens.
+            // The MoveWindow command's smallest number is 0, so you can't use negitives.
+            // Screens, on the other hand, have an origin of 0, but use both positives and negitives
             foreach (Screen s in Screen.AllScreens)
             {
                 Rectangle r = s.Bounds;
@@ -100,15 +107,34 @@ namespace Background.Windows
             offsetY = Math.Abs(offsetY);
 
             Rectangle rect = Screen.AllScreens[screen].Bounds;
-            z = IntPtr.Zero;
-            cw = currentWindow;
-            x = rect.X + offsetX;
-            y = rect.Y + offsetY;
-            w = rect.Width;
-            h = rect.Height;
-            f = (uint)(0);
-            UnityEngine.Debug.LogError($"{x}, {y}, {w}, {h}");
-            MoveWindow(cw, x, y, w, h, true);
+
+            // Move the window
+            int x = rect.X + offsetX;
+            int y = rect.Y + offsetY;
+            MoveWindow(currentWindow, x, y, rect.Width, rect.Height, true);
+        }
+
+        /// <summary>
+        /// Hides the title bar and the border of <paramref name="hWnd"/>
+        /// </summary>
+        /// <param name="hWnd"></param>
+        private static void ToggleTitle(IntPtr hWnd, bool enable) 
+        {
+            // Thanks to: https://forum.unity.com/threads/solved-how-to-remove-the-title-bar-of-a-game.729437/
+
+            // Get current style
+            int style = GetWindowLong(hWnd, GWL_STYLE).ToInt32();
+
+            if (enable)
+            {
+                // Add caption and sizebox
+                SetWindowLong(hWnd, GWL_STYLE, (uint)(style | WS_CAPTION | WS_SIZEBOX));
+            }
+            else 
+            {
+                // Removes caption and sizebox
+                SetWindowLong(hWnd, GWL_STYLE, (uint)(style & ~(WS_CAPTION | WS_SIZEBOX)));
+            }
         }
 
 
@@ -230,10 +256,13 @@ namespace Background.Windows
         private static extern IntPtr MonitorFromWindow(IntPtr hWnd);
 
         [DllImport("user32.dll")]
-        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+        private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
 
         [DllImport("user32.dll")]
-        private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+        private static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetWindowLong(IntPtr hWnd, int nIndex);
 
 
         // Extra bits to make Dlls work
@@ -249,6 +278,15 @@ namespace Background.Windows
             SMTO_NOTIMEOUTIFNOTHUNG = 0x8,
             SMTO_ERRORONEXIT = 0x20
         }
+
+        const uint WS_SIZEBOX = 0x00040000;
+        const int GWL_STYLE = -16;
+        const int WS_BORDER = 0x00800000; //window with border
+        const int WS_DLGFRAME = 0x00400000; //window with double border but no title
+        const int WS_CAPTION = WS_BORDER | WS_DLGFRAME; //window with a title bar
+        const int WS_SYSMENU = 0x00080000;      //window with no borders etc.
+        const int WS_MAXIMIZEBOX = 0x00010000;
+        const int WS_MINIMIZEBOX = 0x00020000;  //window with minimizebox
 
         [Flags]
         private enum MonitorFlags : uint 
