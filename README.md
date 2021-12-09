@@ -10,7 +10,7 @@ You can choose which monitor to set as the background.
 - [ ] Add a tray Icon that can grab the window from the background
 
 ### Here are the two C# files of note
-[The wallpaper control code (System specific. In this case, Windows) (Links to an external site.)](https://github.com/sim2kid/DesktopAquarium/blob/main/Assets/Scripts/Background/Windows/Wallpaper.cs)
+[The wallpaper control code (System specific. In this case, Windows)](https://github.com/sim2kid/DesktopAquarium/blob/main/Assets/Scripts/Background/Windows/Wallpaper.cs)<br>
 [The unity controller that is a monobehavior](https://github.com/sim2kid/DesktopAquarium/blob/main/Assets/Scripts/WindowController.cs)
 
 # Build Info
