@@ -9,6 +9,10 @@ You can choose which monitor to set as the background.
 - [x] Allow for the desktop code to align to an assigned desktop. (Multi-Monitor Support)
 - [ ] Add a tray Icon that can grab the window from the background
 
+### Here are the two C# files of note
+[The wallpaper control code (System specific. In this case, Windows) (Links to an external site.)](https://github.com/sim2kid/DesktopAquarium/blob/main/Assets/Scripts/Background/Windows/Wallpaper.cs)
+[The unity controller that is a monobehavior](https://github.com/sim2kid/DesktopAquarium/blob/main/Assets/Scripts/WindowController.cs)
+
 # Build Info
 This project was built in Unity 2020.3. Any of those versions should load perfectly fine.
 
