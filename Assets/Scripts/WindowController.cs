@@ -21,19 +21,8 @@ namespace DesktopAquarium
         /// </summary>
         private static IntPtr _gameWindow;
 
-
-        /// <summary>
-        /// When calling <see cref="PushGameToBack"/>, if true the window will go fullscreen.
-        /// on false, it'll go windowed.
-        /// </summary>
         [SerializeField]
-        public bool BackgroundFullscreen;
-        /// <summary>
-        /// When calling <see cref="BringGameToFront"/>, if true the window will go fullscreen.
-        /// on false, it'll go windowed.
-        /// </summary>
-        [SerializeField]
-        public bool ForegroundFullscreen;
+        private TrayIcon _trayIcon;
 
         public bool IsBackground { get; private set; }
 
@@ -49,8 +38,7 @@ namespace DesktopAquarium
         {
             _gameWindow = Wallpaper.CurrentWindow;
 
-            Invoke("PushGameToBack", 10f);
-            Invoke("BringGameToFront", 20f);
+            Invoke("PushGameToBack", 5f);
         }
         private void Update()
         {
@@ -130,9 +118,10 @@ namespace DesktopAquarium
         /// </summary>
         public void PushGameToBack()
         {
+            _trayIcon.gameObject.SetActive(true);
+            _trayIcon.onClick.AddListener(BringGameToFront);
             IsBackground = true;
-            setFullscreen(BackgroundFullscreen);
-            Wallpaper.SendToBackground(_gameWindow, 1);
+            Wallpaper.SendToBackground(_gameWindow, 0);
         }
 
         /// <summary>
@@ -142,9 +131,10 @@ namespace DesktopAquarium
         /// </summary>
         public void BringGameToFront()
         {
+            _trayIcon.onClick.RemoveListener(PushGameToBack);
+            _trayIcon.gameObject.SetActive(false);
             IsBackground = false; ;
             Wallpaper.BringToFront(_gameWindow, _foregroundParent);
-            setFullscreen(ForegroundFullscreen);
         }
         #endregion
     }

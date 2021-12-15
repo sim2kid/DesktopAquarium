@@ -35,7 +35,6 @@ namespace Background.Windows
 
         private void DoubleClick(object Sender, System.EventArgs e) 
         {
-            Debug.Log("Click!");
             onClick.Invoke();
         }
 
