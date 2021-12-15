@@ -7,7 +7,7 @@ You can choose which monitor to set as the background.
 ### Recent Goals
 - [x] Refactor to have the desktop code be independent of Unity.
 - [x] Allow for the desktop code to align to an assigned desktop. (Multi-Monitor Support)
-- [ ] Add a tray Icon that can grab the window from the background
+- [x] Add a tray Icon that can grab the window from the background
 
 ### Here are the two C# files of note
 [The wallpaper control code (System specific. In this case, Windows)](https://github.com/sim2kid/DesktopAquarium/blob/main/Assets/Scripts/Background/Windows/Wallpaper.cs)<br>
